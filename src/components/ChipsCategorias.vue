@@ -82,8 +82,8 @@
 </template>
 
 <script>
-import axios from 'axios';
 import store from '../store/store';
+import tiendaService from '../services/tiendaService';
 
 export default {
     name: 'ChipsCategorias',
@@ -102,15 +102,9 @@ export default {
         /**
          * Metodo para hacer el llamado a la API y obtener las categorias
          */
-        obtenerCategorias() {
-            axios.get('http://127.0.0.1:8000/api/category/1')
-                .then(res => {
-                    this.categorias = res.data;
-                    console.log(this.categorias);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                })
+        async obtenerCategorias() {
+            let categories = await tiendaService.getCategories();
+            this.categorias = categories.data;
         },
 
         /**
@@ -118,24 +112,12 @@ export default {
          * de la categoria segun su id y el nombre de una categoria especifica
          * @param {int} idCategoria Id de la categoria a buscar
          */
-        productosSegunCategoria(idCategoria) {
-            axios.get(`http://127.0.0.1:8000/api/category?id=${idCategoria}`)
-                .then(res => {
-                    this.productos = res.data;
-                    console.log(this.productos);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+        async productosSegunCategoria(idCategoria) {
+            let products = await tiendaService.getProductsOfCategory(idCategoria);
+            this.productos = products.data;
 
-            axios.get(`http://127.0.0.1:8000/api/category/1?id=${idCategoria}`)
-                .then(respu => {
-                    this.categoriaEspecifica = respu.data[0].catNombre;
-                    console.log(this.categoriaEspecifica);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            let category = await tiendaService.getCategoryId(idCategoria);
+            this.categoriaEspecifica = category.data[0].catNombre;
         },
 
         /**
@@ -143,15 +125,10 @@ export default {
          * segun su id y guardar ese objeto en el local storage
          * @param {int} idProducto Id del producto a buscar
          */
-        añadirCarrito(idProducto){
-            axios.get(`http://127.0.0.1:8000/api/product/1?id=${idProducto}`)
-                .then(res => {
-                    this.productoCarrito = res.data[0];
-                    store.dispatch('productoAñadido', this.productoCarrito)
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+        async añadirCarrito(idProducto){
+            let product = await tiendaService.getProductId(idProducto);
+            this.productoCarrito = product.data[0];
+            store.dispatch('productoAñadido', this.productoCarrito)
         }
     }
 }

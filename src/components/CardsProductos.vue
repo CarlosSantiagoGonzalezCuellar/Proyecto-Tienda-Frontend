@@ -76,8 +76,8 @@
 </template>
 
 <script>
-import axios from 'axios';
 import store from '../store/store';
+import tiendaService from '../services/tiendaService';
 
 export default {
     name: 'CardsProductos',
@@ -95,36 +95,27 @@ export default {
         }
     },
     methods: {
-        obtenerProductos() {
-            /**
-             * Metodo para hacer el llamado a la API y obtener las productos
-             */
-            axios.get('http://127.0.0.1:8000/api/product/1')
-                .then(res => {
-                    this.productos = res.data;
-                    console.log(this.productos);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                })
+        /**
+         * Metodo para hacer el llamado a la API y obtener las productos
+         */
+        async obtenerProductos() {
+
+            let products = await tiendaService.getProducts();
+            this.productos = products.data;
         },
 
         /**
          * Metodo para hacer el llamado a la API y obtener las categorias
          * donde se extrae el nombre de ellas y son guardados en la lista categorias
          */
-        obtenerCategorias() {
-            axios.get('http://127.0.0.1:8000/api/category/1')
-                .then(res => {
-                    this.categorias = res.data;
-                    console.log(this.categorias);
-                    this.categorias.forEach(element => {
-                        this.items.push(element.catNombre)
-                    });
-                })
-                .catch(function (error) {
-                    console.log(error);
-                })
+        async obtenerCategorias() {
+
+            let categories = await tiendaService.getCategories();
+            this.categorias = categories.data;
+
+            this.categorias.forEach(element => {
+                this.items.push(element.catNombre)
+            });
         },
 
         /**
@@ -132,15 +123,10 @@ export default {
          * segun su id y guardar ese objeto en el local storage
          * @param {int} idProducto Id del producto a buscar
          */
-        añadirCarrito(idProducto){
-            axios.get(`http://127.0.0.1:8000/api/product/1?id=${idProducto}`)
-                .then(res => {
-                    this.productoCarrito = res.data[0];
-                    store.dispatch('productoAñadido', this.productoCarrito)
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+        async añadirCarrito(idProducto){
+            let product = await tiendaService.getProductId(idProducto);
+            this.productoCarrito = product.data[0];
+            store.dispatch('productoAñadido', this.productoCarrito);
         }
     }
 }

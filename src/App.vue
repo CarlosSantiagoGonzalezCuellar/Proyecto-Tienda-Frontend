@@ -66,7 +66,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+// import axios from 'axios';
+import tiendaService from './services/tiendaService';
+
 export default {
   name: 'App',
   mounted() {
@@ -92,18 +94,13 @@ export default {
      * Funcion que hace el llamado a la API y
      * obtiene el nombre de los productos agregandolos a la lista items
      */
-    obtenerProductos() {
-      axios.get('http://127.0.0.1:8000/api/product/1')
-        .then(res => {
-          this.productos = res.data;
-          console.log(this.productos);
-          this.productos.forEach(element => {
-            this.items.push(element.proNombre)
-          });
-        })
-        .catch(function (error) {
-          console.log(error);
-        })
+    async obtenerProductos() {
+      let products = await tiendaService.getProducts();
+      this.productos = products.data;
+
+      this.productos.forEach(element => {
+        this.items.push(element.proNombre)
+      });
     },
   }
 }
